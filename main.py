@@ -1,4 +1,4 @@
-import sys
+import sys, csv
 
 Contacts = {}
 
@@ -12,7 +12,7 @@ class Contact:
 
     def __str__(self):
         return 'Name: ' + self.Name + '\n' + 'Phone: ' + str(
-            self.Phone) + '\n' + 'Email: ' + self.Email + '\n' + 'Occupation: ' + self.Occupation
+            self.Phone) + '\n' + 'Email: ' + self.Email + '\n' + 'Occupation: ' + self.Occupation + '\n'
 
 
 def PrintContacts():
@@ -58,13 +58,20 @@ def FindContact():
     else:
         print('Contact list is empty\n')
 
+
 def SaveContacts():
     print('Name of new file?\n')
     filename = sys.stdin.readline().strip().casefold()
     try:
-        with open(filename, 'w') as fp:
+        with open(filename, 'w') as csvfile:
             for Name in Contacts:
-                fp.write(Name + ',' + str(Contacts[Name].Phone) + ',' + Contacts[Name].Email + ',' + Contacts[Name].Occupation+'\n')
+                writer = csv.writer(csvfile)
+                writer.writerow([Name, Contacts[Name].Phone, Contacts[Name].Email, Contacts[Name].Occupation])
+
+        # with open(filename, 'w') as fp:
+        #     for Name in Contacts:
+        #         fp.write(Name + ',' + str(Contacts[Name].Phone) + ',' + Contacts[Name].Email + ',' + Contacts[
+        #             Name].Occupation + '\n')
 
     except FileNotFoundError:
         print("Loading file failed\n")
@@ -74,16 +81,24 @@ def LoadContacts():
     print('Name of file to load?\n')
     filename = sys.stdin.readline().strip().casefold()
     load_count = 0
+
     try:
         global Contacts
-        with open(filename) as fp:
-            line = fp.readline()
-            while line:
-                line = line.split(',')
-                Contacts[line[0]] = Contact(line[0], int(line[1]), line[2], line[3])
-                line = fp.readline()
+        with open(filename) as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                Contacts[row[0]] = Contact(row[0], int(row[1]), row[2], row[3])
                 load_count += 1
-        print('Number of contacts loaded: {}\n'.format(load_count))
+            print('Number of contacts loaded: {}\n'.format(load_count))
+
+        # with open(filename) as fp:
+        #     line = fp.readline()
+        #     while line:
+        #         line = line.split(',')
+        #         Contacts[line[0]] = Contact(line[0], int(line[1]), line[2], line[3])
+        #         line = fp.readline()
+        #         load_count += 1
+        # print('Number of contacts loaded: {}\n'.format(load_count))
 
     except FileNotFoundError:
         print("File not found\n")
@@ -119,8 +134,6 @@ CommandList = {
 
 
 def UserInterface():
-    global CommandList
-
     while True:
         print('Your options:')
         for cmd_name in CommandList:
