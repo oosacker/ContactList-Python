@@ -1,4 +1,5 @@
-import sys, csv
+import csv
+import sys
 
 Contacts = {}
 
@@ -24,29 +25,29 @@ def PrintContacts():
 
 
 def AddContact():
-    sys.stdout.write('Name?\n')
+    print('Name?')
     name_str = sys.stdin.readline().strip()
 
-    sys.stdout.write('Phone?\n')
+    print('Phone?')
     phone_str = sys.stdin.readline().strip()
     try:
-        int(phone_str)
+        phone_int = int(phone_str)
     except ValueError:
-        print('Invalid phone number\n')
+        print('Invalid phone number')
         return
 
-    sys.stdout.write('Email?\n')
+    print('Email?')
     email_str = sys.stdin.readline().strip()
 
-    sys.stdout.write('occupation?\n')
+    print('occupation?')
     occ_str = sys.stdin.readline().strip()
 
-    Contacts[name_str] = Contact(name_str, int(phone_str), email_str, occ_str)
+    Contacts[name_str] = Contact(name_str, phone_int, email_str, occ_str)
 
 
 def FindContact():
     if Contacts:
-        print('Name of contact to search?\n')
+        print('Name of contact?')
         input_str = sys.stdin.readline().strip().casefold()
 
         if input_str in Contacts:
@@ -60,25 +61,28 @@ def FindContact():
 
 
 def SaveContacts():
-    print('Name of new file?\n')
-    filename = sys.stdin.readline().strip().casefold()
-    try:
-        with open(filename, 'w', newline='') as csvfile:
-            for Name in Contacts:
-                writer = csv.writer(csvfile)
-                writer.writerow([Name, Contacts[Name].Phone, Contacts[Name].Email, Contacts[Name].Occupation])
+    if Contacts:
+        print('Name of new file?\n')
+        filename = sys.stdin.readline().strip().casefold()
+        try:
+            with open(filename, 'w', newline='') as csvfile:
+                for Name in Contacts:
+                    writer = csv.writer(csvfile)
+                    writer.writerow([Name, Contacts[Name].Phone, Contacts[Name].Email, Contacts[Name].Occupation])
 
-        # with open(filename, 'w') as fp:
-        #     for Name in Contacts:
-        #         fp.write(Name + ',' + str(Contacts[Name].Phone) + ',' + Contacts[Name].Email + ',' + Contacts[
-        #             Name].Occupation + '\n')
+            # with open(filename, 'w') as fp:
+            #     for Name in Contacts:
+            #         fp.write(Name + ',' + str(Contacts[Name].Phone) + ',' + Contacts[Name].Email + ',' + Contacts[
+            #             Name].Occupation + '\n')
 
-    except FileNotFoundError:
-        print("Saving file failed\n")
+        except FileNotFoundError:
+            print("Saving file failed\n")
+    else:
+        print('Contact list is empty\n')
 
 
 def LoadContacts():
-    print('Name of file to load?\n')
+    print('Name of file to load?')
     filename = sys.stdin.readline().strip().casefold()
     load_count = 0
 
@@ -116,14 +120,75 @@ def DeleteContact():
 
 
 def DeleteAllContacts():
-    Contacts.clear()
-    print('All contacts deleted\n')
+    if Contacts:
+        Contacts.clear()
+        print('All contacts deleted\n')
+    else:
+        print('Contact list is empty\n')
+
+
+def EditContact():
+    # Backing up the old contact
+    contact_edit = FindContact()
+    old_name = contact_edit.Name
+
+    # If not found, exit
+    if not contact_edit:
+        return
+
+    # Else do the editing
+    else:
+        # Nested functions -- just for editing!!
+        def EditName():
+            print('New name?')
+            new_name = sys.stdin.readline().strip()
+            contact_edit.Name = new_name
+            # Change the key to new name
+            Contacts[new_name] = contact_edit
+            del Contacts[old_name]
+
+        def EditPhone():
+            print('New phone?')
+            new_phone = sys.stdin.readline().strip()
+            try:
+                new_phone_int = int(new_phone)
+            except ValueError:
+                print('Invalid phone number')
+                return
+            contact_edit.Phone = new_phone_int
+
+        def EditEmail():
+            print('New email?')
+            new_email = sys.stdin.readline().strip()
+            contact_edit.Email = new_email
+
+        def EditOccupation():
+            print('New occupation?')
+            new_occ = sys.stdin.readline().strip()
+            contact_edit.Occupation = new_occ
+
+        EditCommands = {
+            'name': EditName,
+            'phone': EditPhone,
+            'email': EditEmail,
+            'occupation': EditOccupation
+        }
+
+        print('\nEdit what?')
+        edit_command = sys.stdin.readline().strip().casefold()
+
+        if edit_command in EditCommands:
+            EditCommands[edit_command]()
+
+        else:
+            print('Invalid edit command\n')
 
 
 # Do not add () at the end of the function names!!!!
 CommandList = {
     'print': PrintContacts,
     'add': AddContact,
+    'edit': EditContact,
     'find': FindContact,
     'save': SaveContacts,
     'load': LoadContacts,
@@ -132,14 +197,26 @@ CommandList = {
     'quit': quit
 }
 
+CommandDescr = {
+    'print': 'Print all contacts on screen',
+    'add': 'Add new contact',
+    'edit': 'Edit existing contact',
+    'find': 'Find contact by name',
+    'save': 'Save contact list to CSV',
+    'load': 'Load contact list from CSV',
+    'delete': 'Delete a contact',
+    'delete-all': 'Delete all contacts',
+    'quit': 'Quit program'
+}
+
 
 def UserInterface():
     while True:
         print('Command list:')
-        for cmd_name in CommandList:
-            print(cmd_name)
+        for command in CommandList:
+            print(command + ': ' + CommandDescr[command])
 
-        sys.stdout.write('\nCommand? ')
+        print('\nCommand? ')
         command = sys.stdin.readline().strip().casefold()
 
         if command in CommandList:
