@@ -18,8 +18,8 @@ class Contact:
 
 def PrintContacts():
     global Contacts
-    for Con in Contacts:
-        print(Contacts[Con])
+    for Name in Contacts:
+        print(Contacts[Name])
 
 
 def AddContact():
@@ -51,40 +51,44 @@ def AddContact():
 
 def FindContact():
     print('Name of contact to search? ')
-    input_str = sys.stdin.readline().strip()
+    input_str = sys.stdin.readline().strip().casefold()
 
     global Contacts
-    if Contacts.__contains__(input_str):
+    if input_str in Contacts:
         print(Contacts[input_str])
     else:
         print('Contact not found')
 
 
 def SaveContacts():
+    print('Name of new file? ')
+    filename = sys.stdin.readline().strip().casefold()
     try:
-        with open('todo.txt', 'w') as fp:
-            for Con in Contacts:
-                print('SaveContacts')
+        global Contacts
+        with open(filename, 'w') as fp:
+            for Name in Contacts:
+                fp.write(Name + ',' + str(Contacts[Name].Phone) + ',' + Contacts[Name].Email + ',' + Contacts[Name].Occupation)
 
     except FileNotFoundError:
         print("Loading file failed")
 
 
 def LoadContacts():
+    print('Name of file to load? ')
+    filename = sys.stdin.readline().strip().casefold()
+    load_count = 0
     try:
-        with open('contacts.txt') as fp:
+        with open(filename) as fp:
             line = fp.readline()
             while line:
                 line = line.split(',')
-                name_str = line[0]
-                phone_str = line[1]
-                email_str = line[2]
-                occ_str = line[3]
-                Contacts[name_str] = Contact(name_str, int(phone_str), email_str, occ_str)
+                Contacts[line[0]] = Contact(line[0], int(line[1]), line[2], line[3])
                 line = fp.readline()
+                load_count += 1
+        print('Number of contacts loaded: {}'.format(load_count))
 
     except FileNotFoundError:
-        print("loading file failed")
+        print("File not found")
 
 
 # Do not add () at the end of the function names!!!!
