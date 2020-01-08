@@ -63,7 +63,7 @@ def SaveContacts():
     print('Name of new file?\n')
     filename = sys.stdin.readline().strip().casefold()
     try:
-        with open(filename, 'w') as csvfile:
+        with open(filename, 'w', newline='') as csvfile:
             for Name in Contacts:
                 writer = csv.writer(csvfile)
                 writer.writerow([Name, Contacts[Name].Phone, Contacts[Name].Email, Contacts[Name].Occupation])
@@ -74,7 +74,7 @@ def SaveContacts():
         #             Name].Occupation + '\n')
 
     except FileNotFoundError:
-        print("Loading file failed\n")
+        print("Saving file failed\n")
 
 
 def LoadContacts():
@@ -84,7 +84,7 @@ def LoadContacts():
 
     try:
         global Contacts
-        with open(filename) as csvfile:
+        with open(filename, newline='') as csvfile:
             reader = csv.reader(csvfile)
             for row in reader:
                 Contacts[row[0]] = Contact(row[0], int(row[1]), row[2], row[3])
@@ -135,7 +135,7 @@ CommandList = {
 
 def UserInterface():
     while True:
-        print('Your options:')
+        print('Command list:')
         for cmd_name in CommandList:
             print(cmd_name)
 
