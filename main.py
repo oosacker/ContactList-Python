@@ -46,7 +46,9 @@ def AddContact():
     print('Occupation?')
     occ_str = sys.stdin.readline().strip()
 
-    Contacts[name_str] = Contact(name_str, phone_int, email_str, occ_str)
+    c = Contact(name_str, phone_int, email_str, occ_str)
+    Contacts[name_str] = c
+    print(c)
 
 
 def FindContact():
@@ -113,7 +115,7 @@ def DeleteContact():
     else:
         name = res.Name
         del Contacts[name]
-        print(name + ' was deleted\n')
+        print('\"{}\" was deleted\n'.format(name))
 
 
 def DeleteAllContacts():
@@ -150,7 +152,7 @@ def EditContact():
             try:
                 new_phone_int = int(new_phone)
             except ValueError:
-                print('Invalid phone number')
+                print('Invalid phone number\n')
                 return
             contact_edit.Phone = new_phone_int
 
@@ -176,6 +178,7 @@ def EditContact():
 
         if edit_command in EditCommands:
             EditCommands[edit_command]()
+            print(contact_edit)
 
         else:
             print('Invalid edit command\n')
@@ -209,7 +212,7 @@ CommandDescr = {
 
 def UserInterface():
     while True:
-        print('Command list:')
+        print('\nCommand list:')
         for command in CommandList:
             print(command + ': ' + CommandDescr[command])
 
