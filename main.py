@@ -28,6 +28,10 @@ def AddContact():
     print('Name?')
     name_str = sys.stdin.readline().strip()
 
+    if name_str in Contacts:
+        print('Contact name \"{}\" already in list\n'.format(name_str))
+        return
+
     print('Phone?')
     phone_str = sys.stdin.readline().strip()
     try:
@@ -39,7 +43,7 @@ def AddContact():
     print('Email?')
     email_str = sys.stdin.readline().strip()
 
-    print('occupation?')
+    print('Occupation?')
     occ_str = sys.stdin.readline().strip()
 
     Contacts[name_str] = Contact(name_str, phone_int, email_str, occ_str)
@@ -70,13 +74,10 @@ def SaveContacts():
                     writer = csv.writer(csvfile)
                     writer.writerow([Name, Contacts[Name].Phone, Contacts[Name].Email, Contacts[Name].Occupation])
 
-            # with open(filename, 'w') as fp:
-            #     for Name in Contacts:
-            #         fp.write(Name + ',' + str(Contacts[Name].Phone) + ',' + Contacts[Name].Email + ',' + Contacts[
-            #             Name].Occupation + '\n')
-
-        except FileNotFoundError:
+        except IOError:
             print("Saving file failed\n")
+        finally:
+            print('\"{}\" has been saved\n'.format(filename))
     else:
         print('Contact list is empty\n')
 
@@ -91,21 +92,17 @@ def LoadContacts():
         with open(filename, newline='') as csvfile:
             reader = csv.reader(csvfile)
             for row in reader:
-                Contacts[row[0]] = Contact(row[0], int(row[1]), row[2], row[3])
-                load_count += 1
-            print('Number of contacts loaded: {}\n'.format(load_count))
-
-        # with open(filename) as fp:
-        #     line = fp.readline()
-        #     while line:
-        #         line = line.split(',')
-        #         Contacts[line[0]] = Contact(line[0], int(line[1]), line[2], line[3])
-        #         line = fp.readline()
-        #         load_count += 1
-        # print('Number of contacts loaded: {}\n'.format(load_count))
+                if not row[0] in Contacts:
+                    Contacts[row[0]] = Contact(row[0], int(row[1]), row[2], row[3])
+                    load_count += 1
+                else:
+                    print('Contact \"{}\" already in list; skipping'.format(row[0]))
 
     except FileNotFoundError:
         print("File not found\n")
+
+    finally:
+        print('Number of contacts loaded: {}\n'.format(load_count))
 
 
 def DeleteContact():
@@ -130,7 +127,6 @@ def DeleteAllContacts():
 def EditContact():
     # Backing up the old contact
     contact_edit = FindContact()
-    old_name = contact_edit.Name
 
     # If not found, exit
     if not contact_edit:
@@ -141,6 +137,7 @@ def EditContact():
         # Nested functions -- just for editing!!
         def EditName():
             print('New name?')
+            old_name = contact_edit.Name
             new_name = sys.stdin.readline().strip()
             contact_edit.Name = new_name
             # Change the key to new name
@@ -198,7 +195,7 @@ CommandList = {
 }
 
 CommandDescr = {
-    'print': 'Print all contacts on screen',
+    'print': 'Print all contacts to screen',
     'add': 'Add new contact',
     'edit': 'Edit existing contact',
     'find': 'Find contact by name',
